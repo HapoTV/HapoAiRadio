@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: hapo-radio-api
+    runtime: node
+    plan: starter # or standard
+    buildCommand: npm install
+    startCommand: node index.js # or use tsx, bun, vite-node, etc.
+    env: node
+
+    envVars:
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        value: https://your-project.supabase.co
+
+    autoDeploy: true
+    outboundIPs:
+      - 18.156.158.53
+      - 18.156.42.200
+      - 52.59.103.54
