@@ -11,7 +11,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: SUPABASE_URL
-        value: https://your-project.supabase.co
+        value: https://abqyjureexzokbjsioih.supabase.co
 
     autoDeploy: true
     outboundIPs:
