@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: hapo-radio-api
+    runtime: node
+    plan: starter # or standard (upgrade if background jobs or streaming needed)
+    buildCommand: npm install
+    startCommand: node index.js # or tsx src/index.ts, etc.
+    env: node
+
+    healthCheckPath: /healthz
+
+    envVars:
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # Ensure this is set securely in the Render dashboard
+      - key: SUPABASE_URL
+        value: https://abqyjureexzokbjsioih.supabase.co
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: API_SECRET
+        sync: false # Optional for HMAC-signed commands
+
+    autoDeploy: true
+
+    outboundIPs:
+      - 18.156.158.53
+      - 18.156.42.200
+      - 52.59.103.54
