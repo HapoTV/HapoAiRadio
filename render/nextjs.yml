@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: hapo-radio-app
+    runtime: node
+    plan: free # or 'starter', 'standard', etc.
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    env: node
+
+    # Optional if you're using Next.js 13+ with app dir
+    staticPublishPath: .next
+
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://your-project.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: your-anon-key
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false # mark as secret in Render
+      - key: NEXT_PUBLIC_APP_ENV
+        value: production
+      - key: VITE_SUPABASE_URL
+        value: https://your-project.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: your-anon-key
+
+    autoDeploy: true
+
+    # Optional: static IP egress support
+    outboundIPs:
+      - 18.156.158.53
+      - 18.156.42.200
+      - 52.59.103.54
