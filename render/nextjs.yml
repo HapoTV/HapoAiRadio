@@ -1,10 +1,11 @@
+# render.yaml
 services:
   - type: web
     name: hapo-radio-app
     runtime: node
     plan: free # or 'starter', 'standard', etc.
     buildCommand: npm install && npm run build
-    startCommand: npm run start
+    startCommand: node server.js
     env: node
 
     # Optional if you're using Next.js 13+ with app dir
