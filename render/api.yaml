@@ -4,16 +4,25 @@ services:
     runtime: node
     plan: starter # or standard
     buildCommand: npm install
-    startCommand: node index.js # or use tsx, bun, vite-node, etc.
+    startCommand: node index.js
     env: node
+
+    healthCheckPath: /healthz
 
     envVars:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: SUPABASE_URL
         value: https://abqyjureexzokbjsioih.supabase.co
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: API_SECRET
+        sync: false
 
     autoDeploy: true
+
     outboundIPs:
       - 18.156.158.53
       - 18.156.42.200
