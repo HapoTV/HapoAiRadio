@@ -11,6 +11,8 @@ services:
     staticPublishPath: .next
 
     envVars:
+      - key: NODE_VERSION
+        value: 18
       - key: NEXT_PUBLIC_SUPABASE_URL
         value: https://your-project.supabase.co
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
