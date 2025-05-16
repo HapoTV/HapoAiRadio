@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free # or 'starter', 'standard', etc.
     buildCommand: npm install && npm run build
-    startCommand: node server.js
+    startCommand: npm run start
     env: node
 
     # Optional if you're using Next.js 13+ with app dir
@@ -23,7 +23,7 @@ services:
       - key: NEXT_PUBLIC_APP_ENV
         value: production
       - key: API_SECRET
-        sync: false
+        sync: false # mark as secret in Render
 
     autoDeploy: true
 
