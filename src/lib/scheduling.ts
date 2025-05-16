@@ -1,5 +1,91 @@
 import { supabase } from './supabase';
-import type { BookingWithDetails, TimeSlot } from '../types/scheduling';
+import type { BookingWithDetails, TimeSlot, BookingRequest } from '../types/scheduling';
+
+export async function createBooking(booking: BookingRequest, userId: string) {
+  try {
+    // Calculate end time based on service duration
+    const { data: service, error: serviceError } = await supabase
+      .from('services')
+      .select('duration, buffer_time')
+      .eq('id', booking.serviceId)
+      .single();
+
+    if (serviceError || !service) {
+      throw new Error('Failed to fetch service details');
+    }
+
+    const startTime = new Date(booking.startTime);
+    const endTime = new Date(startTime.getTime() + (service.duration * 60000));
+
+    // Create the initial booking
+    const { data: newBooking, error: bookingError } = await supabase
+      .from('bookings')
+      .insert({
+        user_id: userId,
+        provider_id: booking.providerId,
+        service_id: booking.serviceId,
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        status: 'pending',
+        notes: booking.notes
+      })
+      .select()
+      .single();
+
+    if (bookingError) {
+      throw new Error('Failed to create booking');
+    }
+
+    // Handle recurring bookings if a recurrence rule is provided
+    if (booking.recurrenceRule) {
+      const { frequency, interval, count } = booking.recurrenceRule;
+      
+      for (let i = 1; i < count; i++) {
+        let nextStart = new Date(startTime);
+        let nextEnd = new Date(endTime);
+
+        switch (frequency) {
+          case 'daily':
+            nextStart.setDate(nextStart.getDate() + (i * interval));
+            nextEnd.setDate(nextEnd.getDate() + (i * interval));
+            break;
+          case 'weekly':
+            nextStart.setDate(nextStart.getDate() + (i * 7 * interval));
+            nextEnd.setDate(nextEnd.getDate() + (i * 7 * interval));
+            break;
+          case 'monthly':
+            nextStart.setMonth(nextStart.getMonth() + (i * interval));
+            nextEnd.setMonth(nextEnd.getMonth() + (i * interval));
+            break;
+        }
+
+        const { error: recurringError } = await supabase
+          .from('bookings')
+          .insert({
+            user_id: userId,
+            provider_id: booking.providerId,
+            service_id: booking.serviceId,
+            start_time: nextStart.toISOString(),
+            end_time: nextEnd.toISOString(),
+            status: 'pending',
+            notes: booking.notes,
+            parent_booking_id: newBooking.id,
+            recurrence_rule: booking.recurrenceRule
+          });
+
+        if (recurringError) {
+          console.error('Error creating recurring booking:', recurringError);
+          // Continue creating other recurring bookings even if one fails
+        }
+      }
+    }
+
+    return newBooking;
+  } catch (error) {
+    console.error('Error in createBooking:', error);
+    throw error;
+  }
+}
 
 export async function getUserBookings(userId: string): Promise<BookingWithDetails[]> {
   const { data, error } = await supabase
