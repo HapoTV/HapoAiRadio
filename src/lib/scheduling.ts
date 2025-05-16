@@ -1,6 +1,32 @@
 import { supabase } from './supabase';
 import type { BookingWithDetails, TimeSlot, BookingRequest } from '../types/scheduling';
 
+export async function setProviderAvailability(providerId: string, availabilities: any[]) {
+  try {
+    // Delete existing availabilities for this provider
+    const { error: deleteError } = await supabase
+      .from('availabilities')
+      .delete()
+      .eq('provider_id', providerId);
+
+    if (deleteError) {
+      throw new Error('Failed to clear existing availabilities');
+    }
+
+    // Insert new availabilities
+    const { error: insertError } = await supabase
+      .from('availabilities')
+      .insert(availabilities);
+
+    if (insertError) {
+      throw new Error('Failed to set new availabilities');
+    }
+  } catch (error) {
+    console.error('Error setting provider availability:', error);
+    throw error;
+  }
+}
+
 export async function getProviderBookings(providerId: string): Promise<BookingWithDetails[]> {
   const { data, error } = await supabase
     .from('bookings')
